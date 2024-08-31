@@ -1,0 +1,35 @@
+\documentclass[10pt,letterpaper]{article}
+\usepackage{fontspec}% unicode and good <|> behavior
+\usepackage[centering,width=10.5in,height=8in]{geometry}
+\usepackage{array,graphicx}
+\usepackage[breaklinks,pdfpagelabels,hidelinks]{hyperref}
+\usepackage{individualrecipecard}
+\geometry{landscape}
+\graphicspath{{icons/}{photos/}{sunnys/}}
+\pagestyle{empty}
+
+\pretolerance=300 % default 100 : tolerance before attempting hyphenation
+\tolerance=500    % default 500 : how bad a paragraph we tolerate
+\setlength{\emergencystretch}{3em} % in emergencies, allow up to 9 extra spaces between each word
+\usepackage{microtype}%% pdflatex only (http://tug.ctan.org/pkg/microtype)
+\makeatletter
+\g@addto@macro\@verbatim{\microtypesetup{activate=false}}
+\makeatother
+
+\usepackage{multicol}
+\newcommand{\recipecard}[2][1]{%
+\foreach \n in {1,...,#1} {\input{recipes/#2}}%
+}
+
+\begin{document}
+\begin{multicols}{2}
+
+\recipecard{cheesecake}
+
+\end{multicols}
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

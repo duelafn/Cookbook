@@ -1,0 +1,53 @@
+\usepackage{cookbook}
+\usepackage[parfill]{parskip}
+\makeatletter
+
+\def\statline{%
+\doif{\@yield\@servings\@source}{%
+{\footnotesize \doif{\@yield}{Yield: \@yield\doif{\@servings}{; }}\doif{\@servings}{Servings: \@servings}}\mbox{}
+\hfill
+{\footnotesize \doif{\@source}{Source: \@source}}\\}%
+}
+
+
+\def\reciperef#1{\nameref{#1}}
+
+%% Kill some cookbook.sty commands that are not relevant:
+\def\tag#1{\relax}
+\def\citep#1{\relax}
+
+
+\newsavebox{\recipebox}
+\newlength{\currentparskip}
+\renewenvironment{recipe}[2][]{%
+\setlength{\currentparskip}{\parskip}%
+\begin{lrbox}{\recipebox}\begin{minipage}{5in}
+\setlength{\parskip}{\currentparskip}%
+\gdef\@title{#2}%
+\gdef\@rating{}%
+\gdef\@nutrition{}%
+\gdef\@health{}%
+\gdef\@workload{}%
+\gdef\@time{}%
+\gdef\@source{}%
+\gdef\@yield{}%
+\gdef\@servings{}%
+\let\section\recipesection%
+\def\maketitle{
+\textbf{#2}\hfill\doif{\@time}{\@time~minutes}\\[-.5ex]
+\statline\\[-4.5ex]%
+\mbox{}\hrulefill\mbox{}\\[-4ex]}%
+}{%
+\end{minipage}\end{lrbox}%
+\fbox{{\usebox{\recipebox}}}
+}
+
+
+
+
+\makeatother
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "RecipeCards"
+%%% End:

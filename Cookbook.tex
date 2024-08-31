@@ -1,0 +1,284 @@
+\documentclass[twoside,english]{book}
+\usepackage[paperwidth=5.5in,paperheight=8.5in,outer=.25in,inner=.5in,top=.25in,bottom=.25in,includeheadfoot]{geometry}
+\usepackage{babel,makeidx,natbib}
+\usepackage{xltxtra}
+\graphicspath{{icons/}{photos/}}
+\NewDocumentCommand\R{om}{\input{recipes/#2}}
+\NewDocumentCommand\hint{om}{\input{hints/#2}}
+\makeindex
+%% http://www.tex.ac.uk/cgi-bin/texfaq2html?label=overfull
+\pretolerance=300 % default 100 : tolerance before attempting hyphenation
+\tolerance=500    % default 500 : how bad a paragraph we tolerate
+\setlength{\emergencystretch}{3em} % in emergencies, allow up to 9 extra spaces between each word
+\usepackage{microtype}%% pdftex/xetex only (http://tug.ctan.org/pkg/microtype)
+\makeatletter
+\g@addto@macro\@verbatim{\microtypesetup{activate=false}}
+\makeatother
+\def\ShowTimestamp#1-#2.{\ifcase#2\or January\or February\or March\or April\or May\or %
+June\or July\or August\or September\or October\or November\or December\fi~#1}
+\def\timestamp{\edef\mytmp{\number\year-\number\month}\expandafter\ShowTimestamp\mytmp.}
+
+\usepackage[breaklinks,pdfpagelabels,hidelinks]{hyperref}
+\usepackage{cookbook}% Load after hyperref!
+\hypersetup{
+  bookmarksopen=true,
+  bookmarksopenlevel=1,
+  pdftitle={Serenevy Cookbook},
+  pdfauthor={Dean Serenevy},
+}
+
+\def\PhotoType{-100}% Low-res for PDF
+% \def\PhotoType{-600}% High-res for Book
+
+\begin{document}
+
+\begin{frontmatter}
+\begin{titlepage}
+  \title{The Serenevy Cookbook}
+  \author{}
+  \date{\timestamp}
+  \maketitle
+\end{titlepage}
+
+\microtypesetup{protrusion=false}
+\pdfbookmark[1]{\contentsname}{toc}
+\tableofcontents
+\microtypesetup{protrusion=true}
+\end{frontmatter}
+
+\begin{mainmatter}
+\chapter{Appetizers \& Beverages}
+\R{klava}
+\R{coffee}
+\R{lassi}
+\R{lemonade}
+\R{iced-tea}
+\R{bruschetta}
+\R{hard-boiled-eggs}
+\R{soursop-smoothie}
+
+
+\chapter{Main Courses}
+\R[potato]{chicken-pot-pie}
+\R[potato]{potato-gratin}
+\R[potato]{shepherds-pie}
+\R[soup]{bean-soup}
+\R[soup]{chicken-soup}
+\R[soup]{chili}
+\R[soup]{corn-chowder}
+\R[soup]{potato-soup}
+\R[soup]{barley-soup}
+\R[soup]{garden-soup}
+\R[soup]{turkey-kale-soup}
+\R[soup]{pumpkin-soup}
+\R[asian]{red-beef-curry}
+\R[asian]{spicy-chickpeas}
+\R[asian]{pork-stir-fry}\R[asian]{peanut-ginger-pork}% Yes, must be sequential
+% \R{peanut-ginger-pork} % DUP for the auto-recipe insertion
+\R[asian]{general-tso}
+\R[asian]{sweet+sour-pineapple}
+\R[asian]{spring-rolls}
+\R[asian]{peanut-sauce}
+\R[asian]{teriyaki-chicken}
+\R[asian]{meatball-bowls}
+\R[asian]{ginger-beef-lettuce-wraps}
+\R[asian]{ginger-chicken}
+\R[asian]{banh-mi}
+\R[asian]{pho}
+\R[asian]{hoisin-shrimp}
+\R[asian]{edamame-cauliflower-fritters}
+\R[asian]{poke-bowl}
+\R[asian]{zucchini-boats}
+\R[vegetarian]{cauliflower-wraps}
+\R[vegetarian]{mediterranean-bowls}
+\R[vegetarian]{bulgur-bowls}
+\R[salad]{thai-shrimp-salad}
+\R[salad]{chicken-salad}
+\R[salad]{ginger-turkey-patties}
+\R[sandwich]{reuben-sandwiches}
+\R[french]{crepes}
+\R[french]{quiche}
+\R[pasta]{lasagna}
+\R[pasta]{baked-pasta}
+\R[pasta]{pesto-pasta}
+\R[pasta]{alfredo}
+\R[pasta]{spaghetti-with-brussels-sprouts}
+\R[pasta]{mac-and-cheese}
+\R[beef]{hamburgers}
+\R[beef]{beef-stroganoff}
+\R[beef]{steak-au-poivre}
+\R[beef]{schermer-ribs}
+\R[beef]{steak}
+\R[beef]{bulgogi}
+\R[beef]{prime-rib-roast}
+\R[pork]{stuffed-poblanos}
+\R[pork]{pork-chops}
+\R[bread]{pizza-crust}
+\R[bread]{brussels-flatbread}
+\R[german]{sauerkraut-and-sausage}
+\R[german]{succotash}
+\R[greek]{spanakopita}
+\R[greek]{souvlaki}
+\R[mexican]{tacos}
+\R[mexican]{enchilada}
+\R[mexican]{burrito-bowls}
+\R[mexican]{quesadilla}
+\R[brazilian]{brazilian-shrimp-stew}
+\R[seafood]{shrimp-and-lobster-tails}
+\R[seafood]{curry-chickpea-bowls}
+\R[seafood]{salmon-kale-couscous}
+\R[seafood]{shrimp-tempura}
+\R[seafood]{crab-cakes}
+\R[seafood]{shrimp-scampi}
+\R[seafood]{jambalaya}
+
+\chapter{Cakes \& Pies}
+\R{german-chocolate-cake}
+\R{pie-crust}
+\R{chocolate-truffles}
+\R{chocolate-mousse}
+\R{pumpkin-pie}
+\R{tres-leche-cake}
+\R{cheesecake}
+\R{pinapple-upside-down-cake}
+\R{german-cake}
+\R{pumpkin-roll}
+\R{pie-filling}
+\R{peanut-butter-pie}
+\R{white-butter-cake}
+\R{white-chocolate-frosting}
+\R{lemon-pudding-cake}
+\R{pecan-pie}
+
+\chapter{Cookies}
+\R{250-cookies}
+\R{molasses-cookies}
+\R{chocolate-chip-cookies}
+% \R{chocolate-no-bake-cookies}
+\R{peanut-butter-cookies}
+\R{snickerdoodles}
+\R{grasshopper-bars}
+\R{kiflis}
+\R{mexican-wedding-cakes}
+\R{lebkucken}
+\R{sour-cream-cookies}
+\R{bird-nests}
+
+\chapter{Other Desserts}
+\R{popcorn}
+\R{marshmallows}
+\R{chocolate-charley}
+\R{gelatin}
+\R{brownies}
+\R{apple-crisp}
+\R{peach-cobbler}
+\R{baklava}
+\R{applesauce}
+\R{rice-pudding}
+\R{apple-goody}
+\R{fruit-cobbler}
+\R{strawberries-bavarian}
+\R{rote-grutze}
+\R{cranberry-sauce}
+\R{7-up-party-salad}
+\R{frosty-cranberry}
+\R{red-bean-paste}
+\R{sticky-rice}
+\R{chocolate-fudge}
+
+\chapter{Breads}
+\R{biscuits}
+\R{scones}
+\R{oat-brown-sugar-topping}
+\R{stuffing}
+\R{wheat-bread}
+\R{cornbread}
+\R{pumpkin-bread}
+\R{banana-bread}
+\R{garlic-bread}
+
+\chapter{Breakfast}
+\R{chocolate-muffins}
+\R{crumpets}
+\R{pancakes}
+\R{sausage-gravy}
+\R{eggs}
+\R{egg-muffin-cups}
+\R{breakfast-bruschetta}
+\R{french-pancakes}
+\R{lemon-pancakes}
+\R{oven-pancakes}
+\R{swedish-pancakes}
+\R{oatmeal}
+\R{cinnamon-rolls}
+
+\chapter{Sides}
+\R{brussel-sprouts}
+\R{baked-potato}
+\R{sweet-potato}
+\R{scalloped-potatoes}
+\R{hot-potato-salad}
+\R{mashed-potato}
+\R{lambs-quarters}
+\R{tomatoes-with-blue-cheese-chicken-salad}
+\R{corn-fritters}
+\R{southern-beans}
+\R{corn-on-the-cob}
+\R{roasted-veggies}
+
+\chapter{Decorations}
+\R{blackening-seasoning}
+\R{italian-sausage}
+\R{mural-of-flavor}
+\R{chinese-five-spice}
+\R{vinaigrette}
+\R{cucumber-sauce}
+\R{corn-salsa}
+\R{chicken-stock}
+\R{dashi}
+\R{ponzu-sauce}
+\R{sweet-soy-glaze}
+\R{flour-gravy}
+\R{whipped-cream}
+
+\appendix
+
+\chapter{Ingredients}
+\hint{chocolate}
+\hint{thickeners}
+\hint{broth}
+\hint{sugars}
+
+\chapter{Extras}
+%% These are each sections:
+\hint{conversions}\newpage
+\hint{substitutions}\newpage
+\hint{notes}\newpage
+\hint{preparations}\newpage
+
+\section{Notes}
+~\newpage
+~\newpage
+~\newpage
+~\newpage
+~\newpage
+~\newpage
+~\newpage
+
+% \R{fra-diavolo}
+% \R{cappuccino-cookies}
+\end{mainmatter}
+% \end{document}
+
+\begin{backmatter}
+\bibliography{References}
+\bibliographystyle{plainnat}% alpha|abbrv|plainnat
+\newpage
+\printindex
+\end{backmatter}
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

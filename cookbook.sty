@@ -1,0 +1,225 @@
+\usepackage[parfill]{parskip}
+\usepackage{array,theorem,graphicx}
+\usepackage{longtable}
+\usepackage{multicol}
+\usepackage{setspace}
+\usepackage{comment}
+\usepackage{enumitem}
+\usepackage{xspace}
+\usepackage{xltxtra}
+\usepackage{xifthen}
+\usepackage{needspace}
+\usepackage{varioref}
+\usepackage{nameref} % nameref has to come after varioref
+\usepackage{xifthen}
+\usepackage{pgffor} % http://tug.ctan.org/pkg/pgf
+\usepackage{booktabs}  % for \toprule, \midrule, \bottomrule
+\usepackage{syntax}% required to make _ behave
+\usepackage{xparse}% http://www.ctan.org/pkg/xparse
+\usepackage{pstricks}
+\makeatletter
+
+% COMMANDS
+%---------
+% \half, \third, \twothird, \fourth, \threefourth, \eigth, \threeeighth
+% \tempF[<<internal>>]{<<oven temp>>}, \deg, \degF, \degC
+% \t, \T, \c, \cs, \cup, \cups, \oz, \lb
+%
+% \tag{<<index heading>>}   - create index entries
+% \Betty, \Joy              - common references
+% \website{Name}{URL}       - web reference
+% \reciperef{<<name>>}      - reference to sub-recipe
+% \wrap{<<content>>}        - wrap content in ingredient list
+% \OR                       - alternative on next line
+
+
+\let\oldsection\section
+\let\oldsubsection\subsection
+\let\oldsubsubsection\subsubsection
+\def\tightitems{\setlength{\parskip}{0pt}}
+\def\doif#1#2{\ifthenelse{\equal{#1}{}}{}{#2}}
+
+
+\setmainfont[Mapping=tex-text]{Linux Libertine O}
+\font\fracfont="Linux Libertine O" at 6pt
+
+%                       Fractions / \degrees
+%-----------------------------------------------------------------
+\def\vfrac#1#2{\mbox{\raise3pt\hbox{\fracfont #1}\hspace{-1pt}\rotatebox{-5}{\small /}\hspace{-1pt}\lower1pt\hbox{\fracfont #2}}}
+\def\half{\vfrac12\xspace}\let\onehalf\half
+\def\third{\vfrac13\xspace}\let\onethird\third
+\def\twothird{\vfrac23\xspace}\let\twothirds\twothird
+\def\fourth{\vfrac14\xspace}\let\onefourth\fourth\let\quarter\fourth
+\def\threefourth{\vfrac34\xspace}\let\threefourths\threefourth
+\def\threequarter{\vfrac34\xspace}\let\threequarters\threequarter
+\def\eigth{\vfrac18\xspace}\let\oneeigth\eigth
+\def\eighth{\vfrac18\xspace}\let\oneeighth\eigth
+\def\threeeighth{\vfrac38\xspace}\let\threeeighths\threeeighth
+\def\foot{\raisebox{1.5pt}{\texttt{'}}\xspace}
+\def\inch{\raisebox{1.5pt}{\texttt{\char`"}}\xspace}
+\renewcommand{\degrees}{℉\xspace}\let\deg\degrees
+\newcommand{\degreesF}{℉\xspace}\let\degF\degreesF
+\newcommand{\degreesC}{℃\xspace}\let\degC\degreesC
+\def\t{tsp\xspace}
+\def\T{Tbsp\xspace}
+\def\c{cup\xspace}
+\def\cup{cup\xspace}
+\def\cs{cups\xspace}
+\def\cups{cups\xspace}
+\def\floz{fl~oz\xspace}
+\def\oz{oz\xspace}
+\def\qt{qt\xspace}
+\def\quart{qt\xspace}
+\def\lb{lb\xspace}
+\def\g{g\xspace}
+\def\kg{kg\xspace}
+\def\ml{ml\xspace}
+
+\usepackage{siunitx}
+\@ifpackagelater{siunitx}{2021/05/01}{% version 3.x
+\sisetup{per-mode=symbol,separate-uncertainty-units=single,list-units=single,range-units=single,group-separator={,},group-digits=integer}
+}{% version 2.x
+\sisetup{per-mode=symbol,separate-uncertainty=true,multi-part-units=single,list-units=single,range-units=single,group-separator={,},group-digits=integer}
+\let\unit\si\let\qty\SI% forward compatibility
+}
+\NewDocumentCommand{\sifrac}{m}{\unit[per-mode=fraction]{#1}}
+\NewDocumentCommand{\SIfrac}{m}{\qty[per-mode=fraction]{#1}}
+
+\NewDocumentCommand\OR{o}{\IfValueTF{#1}{\textsl{or} #1}{\qquad\textsl{or}}}
+
+\NewDocumentCommand\tempF{om}{#2\degF\IfValueTF{#1}{ (to #1\degF internal temp)}{}}
+
+% XXX: Perhaps needs to be \DeclareRobustCommand?
+\def\tag#1{\index{#1!\@title}}
+
+\NewDocumentCommand\website{mm}{#1\footnote{\url{#2}}}
+\def\Betty{Betty~\cite{betty-crocker}}
+\def\Joy{Joy of Cooking~\citep{joy-of-cooking}}
+\def\stars#1{\ifx0#1\relax\else\foreach\n in {1,...,#1} {$\star$}\fi}
+\def\pstars#1{\ifx0#1\relax\else(\foreach\n in {1,...,#1} {$\star$})\fi}
+
+\def\mylineheight{\baselinestretch\baselineskip}% Foo\smash{\lower\mylineheight\hbox{bar}}\\Foo
+\newif\if@source
+\def\@rating{}\def\@nutrition{}\def\@health{}\def\@workload{}\def\@time{}\def\@source{}\def\@yield{}\def\@servings{}%
+\def\@temperature{}\def\@oven{}\def\@addtohead{}
+\def\Correct{\gdef\@Correct{✔}}
+\def\rating#1{\ifx0#1\relax\else\gdef\@rating{#1}\fi}
+\def\nutrition#1{\ifx0#1\relax\else\gdef\@nutrition{#1}\fi}
+\def\health#1{\ifx0#1\relax\else\gdef\@health{#1}\fi}
+\def\workload#1{\gdef\@workload{#1}}
+\RenewDocumentCommand\time{sm}{\gdef\@time{#2}}% * form for "overnight" recipes. TODO: choose rendering.
+\def\source#1{\gdef\@source{#1}\@sourcetrue}
+\def\yield#1{\gdef\@yield{#1}}
+\def\servings#1{\gdef\@servings{#1}}
+\def\temperature#1{\gdef\@temperature{#1}}
+\def\oven#1{\gdef\@oven{#1}}
+\def\addtohead#1{\gdef\@addtohead{#1}}
+
+% \statline
+% ---------
+\def\statline{\InHeaderfalse%
+\doif{\@workload}{\@workload\doif{\@time}{: }}\doif{\@time}{\@time~minutes}\mbox{}
+\hfill
+% \doif{\@Correct}{{\setlength{\fboxsep}{2pt}\fbox{\@Correct} }}%
+\doif{\@Correct}{[\@Correct] }%
+\doif{\@rating}{Rating: \@rating}%
+% \doif{\@rating}{Rating: \@rating\doif{\@nutrition\@health}{; }}%
+% \doif{\@nutrition}{Nutrition: \@nutrition\doif{\@health}{; }}%
+% \doif{\@health}{Health: \@health}%
+% \doif{\@workload\@time\@rating\@nutrition\@health}{\\}%
+\doif{\@rating\@yield\@servings}{\nopagebreak\\\nopagebreak}%
+\doif{\@yield\@servings\@source}{%
+{\footnotesize \doif{\@yield}{Yield: \@yield\doif{\@servings}{; }}\doif{\@servings}{Servings: \@servings}}\mbox{}
+\hfill
+{\footnotesize \if@source Source: \@source\fi}\\}%
+\doif{\@oven}{Preheat Oven: \@oven\\}%
+\doif{\@temperature}{Target Temperature: \@temperature\\}%
+\doif{\@addtohead}{\@addtohead}%
+\doif{\@photo}{\@photo\vspace{4pt plus 4pt minus 0pt}}%
+\vspace{0pt plus 0pt minus 2pt}%
+}
+
+\def\reciperef#1{\nameref{#1}\vpageref{#1}}
+\def\REF#1{\nameref{#1}\vpageref{#1}}
+
+
+%                           Environments
+%-----------------------------------------------------------------
+\newenvironment{history}{\par\textsc{History:}\ \ }{\par}
+\newenvironment{note}{\par\textsc{Note:}\ \ }{\par}
+\newenvironment{variant}{\par\textsc{Variant:}\ \ }{\par}
+
+\def\ImageWidth{3.5}
+\def\ImageHeight{1.5}
+\def\PhotoType{-100}
+\newif\ifInHeader
+\NewDocumentCommand\photo{om}{\gdef\@photo{%
+\begin{center}
+\includegraphics[width=\ImageWidth in,height=\ImageHeight in,keepaspectratio]{#2\PhotoType}%
+\IfValueTF{#1}{\par #1}{}%
+\end{center}}%
+\ifInHeader\else\@photo\fi
+}
+
+% XXX: Perhaps needs \protect\label{FOO} and/or \protect\index{FOO}?
+\def\recipesection#1{\par\textbf{#1}\par\nopagebreak}
+\NewDocumentEnvironment{recipe}{om}{
+\subsubsection*{#2}
+\addcontentsline{toc}{section}{#2}
+% \centerline{\textbf{#2}}
+\nopagebreak\vspace{-3ex}\rule{4.75in}{1pt}\nopagebreak
+\IfValueTF{#1}{\label{#1}}{\label{#2}}%
+\index{#2}%
+\InHeadertrue%
+\gdef\@title{#2}%
+\gdef\@Correct{}%
+\gdef\@rating{}%
+\gdef\@nutrition{}%
+\gdef\@health{}%
+\gdef\@workload{}%
+\gdef\@time{}%
+\gdef\@source{}\@sourcefalse%
+\gdef\@yield{}%
+\gdef\@servings{}%
+\gdef\@temperature{}%
+\gdef\@oven{}%
+\gdef\@addtohead{}%
+\gdef\@photo{}%
+\let\section\recipesection%
+\def\maketitle{\nopagebreak\statline\par\vspace{-2ex}}%
+% \gdef\@{}%
+% \gdef\@{}%
+}{\par}
+
+% \setlength{\extrarowheight}{1pt}       % use when text is to close to top of cell
+% \def\arraystretch{1.5}                 % row height multiplier
+\newenvironment{ingredients}{%
+\def\arraystretch{1.125}
+\begin{tabular}{@{\hspace{1cm}}l@{\hspace{.5cm}}l}}
+{\end{tabular}\par\hspace{1ex}}
+
+\newlength\tdima
+\newcommand\wrap[1]{%
+  \setlength\tdima{\linewidth}%
+  \addtolength\tdima{\@totalleftmargin}%
+  \addtolength\tdima{-\dimen\@curtab}%
+  \parbox[t]{\tdima}{\raggedright #1\ifhmode\strut\fi}}
+
+\catcode`\&=13
+\newenvironment{ingredients2}[1][2]{%
+\begin{multicols}{#1}\catcode`\&=13\def&{\>}
+\setstretch{1.125}
+\begin{tabbing}
+\ifx1#1\hspace*{1cm}\=\hspace*{1.5cm}\=\+\kill\else
+\ifx2#1\hspace*{1cm}\=\hspace*{1.5cm}\=\+\kill\else
+\ifx3#1\hspace*{.667cm}\=\hspace*{1.125cm}\=\+\kill\else
+\fi\fi\fi}
+{\end{tabbing}\catcode`\&=4\end{multicols}}
+\catcode`\&=4
+
+\makeatother
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "Cookbook"
+%%% End:

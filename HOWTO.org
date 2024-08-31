@@ -1,0 +1,22 @@
+
+* INDEX ITEMS
+
+use singular and lower case entries for non-recipe
+names. Capitalize recipe names.
+
+ \index{main_entry}   -or-   \index{main_entry!sub_entry}   ...
+
+Examples:
+
+ \index{Apple Goodie}
+ \index{apple|Apple Goodie}
+
+ On page 3
+   \index{Bob|(}
+ On page 7
+   \index{Bob|)}      -> in the index: Bob, 3-7
+
+ \index{Bob|see{Cares}}     -> in the index: Bob, see Cares
+
+ \index{Bob|bb}       -> Makes this page entry the bold one in the index
+ \index{Bob|ii}       -> Makes this page entry the italics one in the index

@@ -1,0 +1,132 @@
+#!/usr/bin/perl -w
+use strict; use warnings;
+use 5.028; use experimental 'signatures';
+
+use Getopt::Long qw/:config bundling/;
+use Hash::Util qw/ lock_keys /;
+our $VERSION = '0.1.0';# Created: 2017-03-14
+
+our %OPT = (  );
+our @OPT_SPEC =
+qw/ help|h version noact|no-act|dry-run DEBUG
+  /;
+sub USAGE { <<"__USAGE__" };
+usage: $_[0] [options]
+
+# OPTIONS
+#
+#  --prune <pat>       prune glob pattern (case sensitive on file name)
+#
+#  --no-act,
+#  --dry-run           don't change files, just list what would be done
+#
+#  --DEBUG             print additional information while running
+#  --help, -h          this usage message
+#  --version           show script version
+__USAGE__
+
+use Time::Piece;
+use File::Glob qw/ :bsd_glob /;
+use Dean::Util qw/ cat /;
+
+package Line {
+    use 5.028; use experimental 'signatures';
+
+    use overload (
+        '""' => "str",
+        '~~' => "match",
+    );
+
+    sub new($self, @rest) {
+        return bless { @rest }, $self;
+    }
+
+    sub empty($self) { return ($$self{lines}[$$self{idx}] !~ /\S/); }
+
+    sub str($self, @rest) { return $$self{lines}[$$self{idx}] }
+
+    sub match($self, $other) {
+        return $$self{lines}[$$self{idx}] =~ /$other/;
+    }
+
+    sub prev($self, $delta=1) {
+        return "" if $delta > $$self{idx};
+        return $$self{lines}[$$self{idx} - $delta];
+    }
+
+    sub next($self, $delta=1) {
+        return "" if $$self{idx} + $delta > $#{$$self{lines}};
+        return $$self{lines}[$$self{idx} + $delta];
+    }
+
+    sub warn($self, $key, $msg, $offset=0) {
+        return if $$self{lines}[$$self{idx}] =~ /%\s+noqa[\s:]+.*?\Q$key\E/;
+        printf "%-11s %s line %s: %s\n", "[$key]", $$self{file}, $$self{num} + $offset, $msg;
+    }
+}
+
+get_options( \%OPT, @OPT_SPEC );
+MAIN(\%OPT, @ARGV);
+
+
+sub MAIN($opt, @args) {
+    my (%seen, %used);
+    for (bsd_glob("recipes/*.tex")) {
+        die unless /^recipes\/(.*?).tex/;
+        my $base = $1;
+        $seen{$base} = 1;
+        lint_recipe($_, images => \%used);
+    }
+
+    my %warned;
+    for (bsd_glob("photos/*.jpg")) {
+        next unless /^photos\/(.*?)\-\w+.jpg/;
+        my $base = $1;
+        printf "%-11s %s: %s\n", "[image]", $_, "Image does not match any recipe name"       unless $seen{$base};
+        printf "%-11s %s: %s\n", "[have-img]", $_, "Image exists but not included in $base.tex" if $seen{$base} and !$used{$base} and !$warned{$base};
+        $warned{$base}++;
+        $seen{$base}++;
+    }
+
+    # printf "%-11s %s: %s\n", "[image]", $_, "Missing image for $_.tex" for sort keys %seen;
+}
+
+sub lines($file) {
+    chomp(my @file = cat($file));
+    map Line->new(idx => $_, num => 1+$_, file => $file, lines => \@file), 0..$#file;
+}
+
+sub lint_recipe($file, %opt) {
+    state $UNITS = qr/[tT]|tbsp|tsp|cs?|cups?|oz|lb|pound|ounces?/;
+
+    for (lines($file)) {
+        next if $_->empty() or /^\s*%/;
+        $opt{images}{$1}++ if $opt{images} and /^\s*\\photo\{(.*?)\}\s*$/;
+        $_->warn(comment   => "Has unnecessary instruction comments") if /% DELETE this comment/;
+        $_->warn(space     => "Has space before $1") if /\s(\\\\)/;
+        $_->warn(space     => "Has space before $1") if /\s(\\(?:deg(?:F|C)|foot|inch))\b/;
+        $_->warn(space     => "Has space before $1") if /\&/ and /\S\s+(\\(?:(?:one|two|three)?(?:half|quarter|fourth|third|eigth)))\b/;
+        $_->warn(space     => "Has space before $1") if /[\d]\s+(\\(?:(?:one|two|three)?(?:half|quarter|fourth|third|eigth)))\b/ and !/\&/;
+        $_->warn(space     => "Missing space before $1") if /(?<!\s|~)(\\(?:$UNITS|temp[FC]))\b/;
+        $_->warn(command   => "Use measurement command, not $1") if /\&/ and /[\s\d](?<!\\)($UNITS)\b/i;
+        $_->warn(tilde     => "Use ~ between quantity and units '$1'") if /(?:\d\s*|\S\s+)([\\]?$UNITS)\b/i and !/\&/;
+        $_->warn(backslash => "Trailing \\\\ on last entry in ingredient list", -1) if /\\end\{ingredient/ and $_->prev =~ /\\\\/;
+        $_->warn(ndash     => "Use ndash '--' between numbers") if s/\d{4}\-\d\d\-\d\d//gr =~ /\d\-\d/;
+    }
+}
+
+sub get_options {
+    my $OPT = shift;
+    GetOptions $OPT, @_ or usage(1);
+    usage() if $$OPT{help} || $$OPT{version};
+    lock_keys(%$OPT, keys %$OPT, map /^(\w+)/, @_);
+}
+
+sub usage {
+    my $status = (@_ && $_[0] =~ /^\d+$/) ? shift(@_) : 0+@_;
+    print @_, "\n" if @_;
+    require File::Spec; my $exe = (File::Spec->splitpath($0))[2];
+    $OPT{$_} = $OPT{$_} ? "enabled" : "disabled" for map /^(\w+).*!/, @OPT_SPEC;
+    print $OPT{version} ? "$exe version $VERSION\n" : USAGE($exe);
+    exit $status;
+}

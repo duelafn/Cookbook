@@ -1,0 +1,70 @@
+
+\section{Chocolate}\label{chocolate}
+Chocolate melts at 86--90\degF, keep it under 110\degF or it will need
+re-tempered.
+
+The table below lists the composition of various sources of chocolate. Percentages
+are by weight, cacao is the solids plus the cocoa butter. ``Milk'' is nonfat dry
+milk, so is not a contributor of fat. The solids, sugar, milk, and fat columns add to
+100\% (with some error due to rounding on nutrition label). Note: ``Chocolate'' as an
+ingredient is a technical term meaning cacao in its natural solid to butter ratio of
+$46:54$ ($\pm4$).
+
+%% U: sugar   F: Fat   B: cacao butter   S: cacao solids   C: cacao (B+S)   MF: milkfat   M: milk
+%
+%% "Chocolate" as a technical term in labels matches natural solid:butter ratio which is 46:54.
+%
+% Known: U, F                         // can read fat and sugar from nutrition label
+% Unknown: [C], [M], S, B, MF         // rest are guessed or computed, true dark chocolate has no M or MF
+% B=C-S
+% F=MF+C-S
+% 100=C+MF+M+U
+%
+% B=C-S
+% S=100-F-U-M
+% 100-C-M-U=MF
+
+% CC: M=0
+%   S=100-28-57-0 -> S = 15 ...
+
+% "Chocolate" = S + 54S/46, "cocoa butter":=CB is added cocoa butter (B=CB+54S/46)
+% Hershey: (ingredients: Chocolate; cocoa butter; MF)  CC>CB => 3.35 S > B => B < 16.7 ; CB>MF => B-54/46S>MF => MF<B-6
+%   M=100-F-U-S -> M=9
+%   MF+B=F      -> B=17,MF=11
+
+% Symphony: (ingredients: Milk; cocoa butter; Chocolate; MF)  B > 3.35 S  ;  2.16 S > MF
+%   30=MF+B
+
+\begin{center}\small
+\newsavebox{\fnA}\sbox{\fnA}{\makebox[0pt]{~\footnotemark}}
+\newsavebox{\fnB}\sbox{\fnB}{\makebox[0pt]{~\footnotemark}}
+\newsavebox{\fnC}\sbox{\fnC}{\makebox[0pt]{~\footnotemark}}
+\newsavebox{\fnD}\sbox{\fnD}{\makebox[0pt]{~\footnotemark}}
+\begin{tabular}{lrr@{\,\,:\,\,}lrrr}
+  ~                      & \textbf{cacao}    & \textbf{solids}  & \textbf{butter}   & \textbf{sugar} & \textbf{milk} & \textbf{fat}      \\\midrule
+  Cocoa powder           & 100\%             & 90\%             & 10\%              & 0\%            & 0\%           & 10\%              \\% Easy
+  Baker's unsweetened    & 100\%             & 50\%             & 50\%              & 0\%            & 0\%           & 50\%              \\% Easy
+  Baker's semi-sweet     & 56\%              & 21\%             & 35\%              & 42\%           & 0\%           & 35\%              \\% Easy
+% Anton's date CCs (Hu brand) & 63\%         & 30\%             & 33\%              & 33\%  (+4% date fiber)
+  Nestle Chocolate chips & 35\%              & 15\%             & 20\%\usebox{\fnA} & 57\%           & 0\%           & 28\%\usebox{\fnB} \\% Solids are correct since no milk
+  \midrule%
+  Lindt 90\%             & 90\%              & 35\%             & 55\%              & 10\%           & 0\%           & 55\%              \\% Easy
+  Lindt 70\%             & 70\%              & 23\%             & 47\%              & 30\%           & 0\%           & 47\%              \\% Easy
+  Dove dark\usebox{\fnC} & 49\%              & 20\%             & 29\%\usebox{\fnA} & 48\%           & 0\%           & 33\%\usebox{\fnB} \\% Chocolate, cocoa butter, milkfat
+  Symphony bar           & 24\%              & 4\%\usebox{\fnA} & 20\%\usebox{\fnA} & 56\%           & 10\%          & 30\%\usebox{\fnB} \\% Some wiggle in cocoa butter column, this is low-end
+  Hershey's bar          & 22\%\usebox{\fnD} & 5\%              & 17\%              & 56\%           & 9\%           & 30\%\usebox{\fnB}   % If Post is right, this is unique by ingredient ordering
+\end{tabular}
+\addtocounter{footnote}{-4}
+\stepcounter{footnote}\footnotetext{Guess.}
+\stepcounter{footnote}\footnotetext{Contains milkfat to cut the cocoa butter.}
+\stepcounter{footnote}\footnotetext{Partially alkalized, AKA ``Dutched''
+  --- reduces acidity and bitterness and makes darker in color.}
+\stepcounter{footnote}\footnotetext{Washington Post says 11\% chocolate,
+  but that must be raw cacao bean before adding more cocoa butter:
+  \url{http://www.washingtonpost.com/wp-dyn/articles/A24276-2004Jun8.html}.}
+\end{center}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../Cookbook"
+%%% End:

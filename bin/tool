@@ -1,0 +1,206 @@
+#!/usr/bin/perl -w
+use strict; use warnings;
+use 5.028; use experimental 'signatures';
+use open ':encoding(UTF-8)';
+use open ':std';
+use utf8;
+
+use Getopt::Long qw/:config bundling/;
+use Hash::Util qw/ lock_keys /;
+our $VERSION = '0.1.0';# Created: 2023-11-29
+
+our %OPT = (  );
+our @OPT_SPEC =
+qw/ help h version noact|no-act|dry-run DEBUG
+  /;
+sub USAGE($exe, $long) { local $_ = <<"__USAGE__"; $long ? s/^# ?//gmr : s/^#.*\n//gmr };
+usage: $exe [options] NAME
+       $exe [options] ACTION ARG(S)
+
+ACTIONS
+
+  $exe list
+
+    Extract random selection of recipes for potential cooking
+
+
+OPTIONS
+
+ --DEBUG             print additional information while running
+ --help, -h          usage message (long or short)
+ --version           show script version
+__USAGE__
+
+use List::Util qw/ shuffle /;
+# use Sort::Key qw/ keysort /;
+
+our %SKIP = map +($_ => 1), (
+    "Coffee",
+    "Klava",
+    "Oat-Brown Sugar Topping",
+);
+
+our %OVERRIDE = (
+    'Egg Muffin Cups'              => { type => "food" },
+    "Dean's Pancakes / Waffles"    => { type => "food" },
+);
+
+our %CLASS = (
+    "Main Courses"                 => { type => "food",    list => "recipes.list" },
+    "Cakes \\& Pies"               => { type => "dessert", list => "desserts.list" },
+    "Cookies"                      => { type => "dessert", list => "desserts.list" },
+    "Other Desserts"               => { type => "dessert", list => "desserts.list" },
+    "Breakfast"                    => { type => "dessert", list => "desserts.list" },
+    "Appetizers \\& Beverages"     => { type => "side",    list => "recipes.list" },
+    "Breads"                       => { type => "side",    list => "recipes.list" },
+    "Sides"                        => { type => "side",    list => "recipes.list" },
+    "Decorations"                  => { type => "other",   list => undef },
+    "Extras"                       => { type => undef,     list => undef },
+    "Ingredients"                  => { type => undef,     list => undef },
+);
+
+sub cat {
+    my $f = shift;
+    open my $F, "<:encoding(UTF-8)", $f or die "Can't open $f for reading: $!";
+    chomp(my @lines = <$F>);
+    return @lines;
+}
+
+our %ACTIONS; sub action;
+action help => sub { usage() };
+
+action all => sub {
+    for (@{recipes()}) {
+        printf "%-45s # %s%s\n", $$_{name}, $$_{source}//'', ($$_{photo} ? "" : "  (needs photo)");
+    }
+};
+
+action list => sub {
+    my ($action, @args) = @_;
+    my %list;
+    my @sections = qw/ food side dessert /;
+
+    for (@{recipes()}) {
+        next unless $$_{type} and $$_{list};
+        push @{$list{$$_{type}}}, sprintf "[%5s] %-45s # %s%s", $$_{rating}//'', $$_{name}, $$_{source}//'', ($$_{photo} ? "" : "  (needs photo)");
+    }
+
+    for (@sections) {
+        say $_;
+        say "="x(length($_));
+        say for reverse sort( (shuffle(@{$list{$_}}))[0..5] );
+        say "";
+    }
+};
+
+get_options( \%OPT, @OPT_SPEC );
+call_action( @ARGV );
+
+
+sub recipes() {
+    my $cls;
+    my @recipe;
+    my %seen = %SKIP;
+    for (cat "Cookbook.tex") {
+        next if /^\s*(?:%|\\NewDocumentCommand)/; # Comments and confusing lines
+
+        if (/chapter\{(.+)\}/) {
+            say STDERR "Unknown chapter '$1'" unless $cls = $CLASS{$1};
+        }
+
+        while (/\\R(?:\[[^\]]*\])?\{(.+?)\}/g) {
+            my $basename = $1;
+            my $fname = "recipes/$basename.tex";
+            if (-e $fname) {
+                my $r;
+                for (cat $fname) {
+                    $r = undef if /\\end\{recipe\}/;
+                    $recipe[-1]{rating} = "*"x$1 if $r and /^\s*\\rating\s*(\d+)/ and $1 > 0;
+                    $recipe[-1]{photo} = $1      if $r and /^\s*\\photo\{(.+?)\}/;
+                    next unless /^\\begin\{recipe\}\{([^%]+?)\}/; # (?=\s*%|\s*\\tag|\s*$)
+                    my $name = $1;
+                    next if $seen{fc($name)}++;
+                    push @recipe, {
+                        %$cls,
+                        source   => "Cookbook",
+                        basename => $basename,
+                        name     => ($r = $name),
+                        %{$OVERRIDE{$name} // {}},
+                    };
+                }
+            } else {
+                say STDERR "$fname: not found";
+            }
+        }
+    }
+
+    for (cat "recipes.list") {
+        next unless /^\[\s*([*]*).*?\]\s*([^#]+?)\s*(?:#|$)/;
+        my $rating = $1;
+        my $name = $2;
+        my $source = "Hello Fresh";
+        $source = $1 if $name =~ s/^([\w ]+):\s*//;
+        next if $seen{fc($name)}++;
+        push @recipe, {
+            type   => "food",
+            list   => "recipes.list",
+            rating => $rating,
+            source => $source,
+            name   => $name,
+            %{$OVERRIDE{$name} // {}},
+        };
+    }
+
+    for (cat "desserts.list") {
+        next unless /^\[\s*([*]*).*?\]\s*([^#]+?)\s*(?:#|$)/;
+        my $rating = $1;
+        my $name = $2;
+        my $source = "Hello Fresh";
+        $source = $1 if $name =~ s/^([\w ]+):\s*//;
+        next if $seen{fc($name)}++;
+        push @recipe, {
+            type   => "dessert",
+            list   => "desserts.list",
+            rating => $rating,
+            source => $source,
+            name   => $name,
+            %{$OVERRIDE{$name} // {}},
+        };
+    }
+
+    return \@recipe;
+}
+
+sub action {
+    my $name = shift;
+    $name = [ $name ] unless ref($name);
+    unshift @_, "-action" if 1 == @_;
+    $ACTIONS{$_} = { -name => $_, @_ } for @$name;
+}
+
+sub call_action {
+    my $name = shift // "";
+    usage("No such action $name") unless exists $ACTIONS{$name};
+    my $action = $ACTIONS{$name};
+
+    my @arg = @_;
+    @arg = $$action{-build_args}->( $action, @_ ) if $$action{-build_args};
+
+    $$action{-action}->( $action, @arg );
+}
+
+sub get_options {
+    my $OPT = shift;
+    GetOptions $OPT, @_ or usage(1);
+    usage() if $$OPT{help} || $$OPT{h} || $$OPT{version};
+    lock_keys(%$OPT, keys %$OPT, map /^(\w+)/, @_);
+}
+
+sub usage {
+    my $status = (@_ && $_[0] =~ /^\d+$/) ? shift(@_) : 0+@_;
+    print @_, "\n" if @_;
+    require File::Spec; my $exe = (File::Spec->splitpath($0))[2];
+    $OPT{$_} = $OPT{$_} ? "enabled" : "disabled" for map /^(\w+).*!/, @OPT_SPEC;
+    print $OPT{version} ? "$exe version $VERSION\n" : USAGE($exe, $OPT{help});
+    exit $status;
+}

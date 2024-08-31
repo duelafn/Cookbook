@@ -1,0 +1,87 @@
+
+\bgroup% Local definitions
+\setlength{\parskip}{0pt}
+\newlength{\subswidth}
+\setlength{\subswidth}{\hsize}
+\addtolength{\subswidth}{-5em}
+\def\rating#1#2{\par$\approx$~~\parbox[t]{\subswidth}{#2}\hfill\pstars{#1}\\[-3ex]}
+\def\equalto#1#2{\par$=$~~\parbox[t]{\subswidth}{#2}\hfill\pstars{#1}\\[-3ex]}
+\def\paragraph#1{\par\vspace{2ex}\textbf{#1}\quad}
+\def\br{\\[1ex]}
+\newlength{\SubsTextWidth}
+\settowidth{\SubsTextWidth}{\quad\pstars{5}}
+\setlength{\SubsTextWidth}{\linewidth-\SubsTextWidth}
+\def\bwrap{\begin{minipage}{\SubsTextWidth}}
+\def\ewrap{\end{minipage}}
+
+\section{But I don't have ``Eye of Newt''\dots}
+Suitability ratings out of 5 stars:
+\begin{center}\small
+\begin{tabular}{rl}
+  \stars{1} & inappropriate\\
+  \stars{2} & not good (bad taste or significant change in behavior)\\
+  \stars{3} & acceptable\\
+  \stars{4} & good replacement (taste is right, may need to alter things)\\
+  \stars{5} & perfect substitute
+\end{tabular}
+\end{center}
+
+\paragraph{Baking Powder} 2 \t baking powder
+\rating3{1 \t cream of tartar plus \half\t baking soda plus \half\t corn starch}
+
+\paragraph{Brown Sugar} 1 \cup light brown sugar
+\equalto5{1 \cup granulated sugar plus 1 \T molasses, mush by hand}
+\rating5{\half \cup granulated sugar plus \half \cup dark brown sugar}\br
+1 \cup dark brown sugar
+\equalto5{1 \cup granulated sugar plus 2 \T molasses}
+
+\paragraph{Butter} 1 lb butter
+\rating0{12.8 \oz shortening plus 3.2 \oz (weight $\sim$ 3 \floz) liquid}
+
+\paragraph{Buttermilk} 1 cup buttermilk
+% https://www.kingarthurbaking.com/blog/2019/01/28/how-to-substitute-for-buttermilk
+% \rating5{\third \cup plain yogurt plus \twothird \cup milk}
+\rating5{\half \cup plain greek yogurt plus \half \cup milk}
+\rating3{1 \cup milk plus 1 \T lemon juice OR white vinegar plus wait 15 min}
+
+\paragraph{Chocolate} 1 square (1 \oz) of unsweetened baking chocolate
+\rating2{1 \T shortening or oil plus 3 level \T baking cocoa}
+
+\paragraph{Corn Starch} \half \T corn starch
+\rating2{1 \T flour (as thickener)}
+
+\bwrap
+\paragraph{Eggs} Egg yolks are all the same size, so larger eggs have
+proportionally more whites. Average weights are Jumbo (2.5 \oz),
+Extra-large (2.25 \oz), Large (2 \oz), Medium (1.75 \oz), Small (1.5 \oz).
+\ewrap
+
+\paragraph{Evaporated Milk} 12 \oz (1\half c) can of evaporated milk
+\equalto5{3\threefourth c whole milk reduced 60\%
+  {\footnotesize (cook just below boil, pass through cheesecloth)}}
+
+\paragraph{Molasses} 1 cup molasses
+\rating0{1 cup honey, dark corn syrup, or pure maple syrup}
+\rating0{3/4 cup firmly packed brown sugar}
+
+\paragraph{Salted Butter} \half cup salted butter
+\equalto5{\half cup butter plus \eigth tsp salt}
+
+\paragraph{Shortening} 16 \oz shortening
+\rating0{20 oz butter minus 4 \oz liquid}%  (weight $\sim$ 3.8 \floz)
+
+\paragraph{Sweetened Condensed Milk} 14 \oz (400 g) can of sweetened condensed milk
+\equalto5{\threefourth c evaporated milk + 1 c sugar}
+
+% Tomato Juice. 1 cup tomato juice = 1/2 cup tomato sauce + 1/2 cup water\\
+% 1 cup cream = 3/4 cup milk + 1/4 cup unsalted butter (use only in cooking)\\
+% 1 cup buttermilk = 1 cup plain yogurt = 2 tablespoons lemon juice + 1 cup milk\\
+% 1 cup half and half = 1/2 cup cream + 1/2 cup milk
+\egroup% End local definitions
+
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../Cookbook"
+%%% End:
