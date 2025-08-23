@@ -8,7 +8,13 @@
 # make tags                 - show list of currently used tags
 # make sources              - show list of currently used sources
 # make clean                - remove temporary build files
-
+#
+#
+## ih_strip() { exiftool -all= --icc_profile:all "/cache/syncthing/Darr-Camera/Camera/$1" -o "$2-orig.jpg"; }
+##
+## ih_strip PXL_20250728_011423507.jpg pesto-pasta
+##
+## mv ~/run-tmp/tmp/* photos/; make
 
 RECIPES=$(shell find recipes -type f -name "*.tex")
 HINTS=$(shell find hints -type f -name "*.tex")

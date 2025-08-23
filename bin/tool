@@ -1,9 +1,10 @@
 #!/usr/bin/perl -w
 use strict; use warnings;
 use 5.028; use experimental 'signatures';
-use open ':encoding(UTF-8)';
-use open ':std';
+use Encode;
 use utf8;
+binmode $_, ":encoding(UTF-8)" for \*STDIN, \*STDOUT, \*STDERR;
+@ARGV = map decode("UTF-8", $_), @ARGV;
 
 use Getopt::Long qw/:config bundling/;
 use Hash::Util qw/ lock_keys /;
@@ -75,8 +76,7 @@ action all => sub {
     }
 };
 
-action list => sub {
-    my ($action, @args) = @_;
+action list => sub($action, @args) {
     my %list;
     my @sections = qw/ food side dessert /;
 
