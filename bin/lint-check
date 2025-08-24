@@ -82,7 +82,8 @@ sub MAIN($opt, @args) {
     for (bsd_glob("photos/*.jpg")) {
         next unless /^photos\/(.*?)\-\w+.jpg/;
         my $base = $1;
-        printf "%-11s %s: %s\n", "[image]", $_, "Image does not match any recipe name"       unless $seen{$base};
+        my $basebase = ($base =~ s/\-\d+$//r);
+        printf "%-11s %s: %s\n", "[image]", $_, "Image does not match any recipe name"      unless $seen{$base} or $used{$base} or $used{$basebase};
         printf "%-11s %s: %s\n", "[have-img]", $_, "Image exists but not included in $base.tex" if $seen{$base} and !$used{$base} and !$warned{$base};
         $warned{$base}++;
         $seen{$base}++;
@@ -101,7 +102,7 @@ sub lint_recipe($file, %opt) {
 
     for (lines($file)) {
         next if $_->empty() or /^\s*%/;
-        $opt{images}{$1}++ if $opt{images} and /^\s*\\photo\{(.*?)\}\s*$/;
+        $opt{images}{$1}++ if $opt{images} and /^\s*\\photo\{(.*?)(?:\-\d+)?\}\s*$/;
         $_->warn(comment   => "Has unnecessary instruction comments") if /% DELETE this comment/;
         $_->warn(space     => "Has space before $1") if /\s(\\\\)/;
         $_->warn(space     => "Has space before $1") if /\s(\\(?:deg(?:F|C)|foot|inch))\b/;
