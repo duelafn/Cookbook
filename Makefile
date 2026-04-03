@@ -10,9 +10,9 @@
 # make clean                - remove temporary build files
 #
 #
-## ih_strip() { exiftool -all= --icc_profile:all "/cache/syncthing/Darr-Camera/Camera/$1" -o "$2-orig.jpg"; }
+## ih_strip() { exiftool -all= --icc_profile:all "/cache/syncthing/Darr-Camera/Camera/$1" -o "$2-orig.jpg"; gimp "$2-orig.jpg"; }
 ##
-## ih_strip PXL_20250728_011423507.jpg pesto-pasta
+## ih_strip PXL_20250728_011423507.jpg photos/pesto-pasta
 ##
 ## mv ~/run-tmp/tmp/* photos/; make
 
@@ -29,7 +29,7 @@ COOKBOOK_DEPS = cookbook.sty References.bib ${RECIPES} ${HINTS} ${PHOTOS_LOW_RES
 
 all: cookbook
 
-cookbook:: Cookbook.pdf CookbookHiRes.pdf CookbookPrint.pdf
+cookbook:: CookbookHiRes.pdf CookbookPrint.pdf Cookbook.pdf
 
 check:
 	@./bin/lint-check
@@ -40,6 +40,7 @@ Cookbook.pdf: Cookbook.tex ${COOKBOOK_DEPS}
 	xelatex -interaction nonstopmode Cookbook.tex
 	makeindex Cookbook
 	xelatex -interaction nonstopmode Cookbook.tex
+	xelatex -interaction nonstopmode Cookbook.tex
 
 CookbookHiRes.pdf: Cookbook.tex ${COOKBOOK_DEPS}
 	perl -pE 's/^(.def.PhotoType)/% $$1/; s/^%+\s*(.def.PhotoType.\-600)/$$1/' $< >CookbookHiRes.tex
@@ -47,6 +48,7 @@ CookbookHiRes.pdf: Cookbook.tex ${COOKBOOK_DEPS}
 	bibtex CookbookHiRes.aux
 	xelatex -interaction nonstopmode CookbookHiRes.tex
 	makeindex CookbookHiRes
+	xelatex -interaction nonstopmode CookbookHiRes.tex
 	xelatex -interaction nonstopmode CookbookHiRes.tex
 	rm -f CookbookHiRes.tex CookbookHiRes.aux CookbookHiRes.bbl CookbookHiRes.blg CookbookHiRes.idx CookbookHiRes.ilg CookbookHiRes.ind CookbookHiRes.log CookbookHiRes.out CookbookHiRes.toc
 

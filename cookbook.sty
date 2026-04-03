@@ -17,6 +17,7 @@
 \usepackage{syntax}% required to make _ behave
 \usepackage{xparse}% http://www.ctan.org/pkg/xparse
 \usepackage{pstricks}
+\usepackage{needspace}
 \makeatletter
 
 % COMMANDS
@@ -164,6 +165,7 @@
 % XXX: Perhaps needs \protect\label{FOO} and/or \protect\index{FOO}?
 \def\recipesection#1{\par\textbf{#1}\par\nopagebreak}
 \NewDocumentEnvironment{recipe}{om}{
+\Needspace{8\baselineskip}
 \subsubsection*{#2}
 \addcontentsline{toc}{section}{#2}
 % \centerline{\textbf{#2}}
